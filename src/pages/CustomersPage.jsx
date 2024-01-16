@@ -1,15 +1,36 @@
 import { useState, useEffect } from "react";
-import Axios from "axios";
+import Pagination from "../components/Pagination";
+import customersAPI from "../services/customersAPI";
 
 const CustomersPage = (props) => {
     const [customers, setCustomers] = useState([])
 
+    const fetchCustomers = async () => {
+        try{
+            const data = await customersAPI.findAll()
+            setCustomers(data)
+        }catch(error)
+        {
+            //notif a faire 
+            console.error(error.response)
+        }
+    }
+
+    //Pour la pagination
+    const [currentPage, setCurrentPage] = useState(1)
+
     useEffect(()=>{
-        Axios.get('http://apicourse.myepse.be/api/customers')
-            .then(response => response.data['hydra:member'])
-            .then(data => setCustomers(data))
-            .catch(error => console.error(error.response))
-    },[])
+        fetchCustomers()
+    },[customers])
+
+    //pour la pagination
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
+    }
+
+    const itemsPerPage = 10
+
+    const paginatedCustomers = Pagination.getData(customers, currentPage, itemsPerPage)
     
     return ( 
         <>
@@ -28,7 +49,7 @@ const CustomersPage = (props) => {
                     </tr>
                 </thead>
                 <tbody>
-                {customers.map(customer=>(
+                {paginatedCustomers.map(customer=>(
                     <tr key={customer.id}>
                         <td>{customer.id}</td>
                         <td>{customer.firstName} {customer.lastName}</td>
@@ -53,6 +74,12 @@ const CustomersPage = (props) => {
                 ))}
             </tbody>
             </table>
+            <Pagination 
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                length={customers.length}
+                onPageChanged={handlePageChange}
+            />
         </>
      );
 }
