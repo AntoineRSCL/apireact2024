@@ -15,7 +15,7 @@ const Navbar = (props) => {
                             <Link className="nav-link" to="/customers">Clients</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link" to="#">Factures</Link>
+                            <Link className="nav-link" to="/invoices">Factures</Link>
                         </li>
                     </ul>
                     <ul className="navbar-nav ms-auto">
@@ -23,7 +23,7 @@ const Navbar = (props) => {
                             <a href="#" className="nav-link">Inscription</a>
                         </li>
                         <li className="nav-item">
-                            <a href="#" className="btn btn-success">Connexion</a>
+                            <Link to="/login" className="btn btn-success">Connexion</Link>
                         </li>
                         <li className="nav-item">
                             <a href="#" className="btn btn-danger">Déconnexion</a>
