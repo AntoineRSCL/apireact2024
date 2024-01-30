@@ -5,8 +5,12 @@ import CustomersPage from "./pages/CustomersPage";
 import CustomersPageWithPagination from "./pages/CustomersPageWithPagination";
 import InvoicesPage from "./pages/InvoicesPage";
 import LoginPage from "./pages/LoginPage";
+import authAPI from "./services/authAPI";
 
 const App = () => {
+
+  authAPI.setup()
+
   return ( 
     <Router>
       <Navbar />
