@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Pagination from "../components/Pagination";
 import customersAPI from "../services/customersAPI";
+import { Link } from "react-router-dom";
 
 const CustomersPage = (props) => {
     const [customers, setCustomers] = useState([])
@@ -14,33 +15,33 @@ const CustomersPage = (props) => {
             setCustomers(data)
         }catch(error)
         {
-            //notif a faire 
+            // notif à faire
             console.error(error.response)
         }
     }
 
-    //pour les filtres
+    // pour les filtres
     const handleSearch = event => {
-        const value = event.currentTarget.value
+        const value = event.currentTarget.value 
         setSearch(value)
         setCurrentPage(1)
-    }
+    } 
 
-    const filteredCustomers =  customers.filter(c => 
-            c.firstName.toLowerCase().includes(search.toLowerCase()) || 
+    const filteredCustomers = customers.filter(c => 
+            c.firstName.toLowerCase().includes(search.toLowerCase()) ||
             c.lastName.toLowerCase().includes(search.toLowerCase()) ||
-            c.email.toLowerCase().includes(search.toLowerCase()) ||
+            c.email.toLowerCase().includes(search.toLowerCase) || 
             (c.company && c.company.toLowerCase().includes(search.toLowerCase()))
         )
 
-    //Pour la pagination
+    // pour la pagination 
     const [currentPage, setCurrentPage] = useState(1)
 
     useEffect(()=>{
         fetchCustomers()
-    },[customers])
+    },[])
 
-    //pour la pagination
+    // pour la pagination 
     const handlePageChange = (page) => {
         setCurrentPage(page)
     }
@@ -48,10 +49,13 @@ const CustomersPage = (props) => {
     const itemsPerPage = 10
 
     const paginatedCustomers = Pagination.getData(filteredCustomers, currentPage, itemsPerPage)
-    
+
     return ( 
         <>
-            <h1>Liste des clients</h1>
+            <div className="d-flex justify-content-between align-items-center">
+                <h1>Liste des clients</h1>
+                <Link to="/customers/new" className="btn btn-primary mb-3">Créer un client</Link>
+            </div>
             <div className="form-group">
                 <input type="text" className="form-control" placeholder="Recherche..." onChange={handleSearch} value={search} />
             </div>
@@ -63,36 +67,37 @@ const CustomersPage = (props) => {
                         <th>Email</th>
                         <th>Entreprise</th>
                         <th>Factures</th>
-                        <th className="text-center">Montant Total</th>
+                        <th className="text-center">Montant total</th>
                         <th className="text-center">Montant Restant</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                {paginatedCustomers.map(customer=>(
-                    <tr key={customer.id}>
-                        <td>{customer.id}</td>
-                        <td>{customer.firstName} {customer.lastName}</td>
-                        <td>{customer.email}</td>
-                        <td>{customer.company}</td>
-                        <td className="text-center">
-                            <span className="badge badge-secondary">
-                                {customer.invoices.length}
-                            </span>
-                        </td>
-                        <td className="text-center">
-                            {customer.totalAmount.toLocaleString()}€
-                        </td>
-                        <td className="text-center">
-                            {customer.unpaidAmount.toLocaleString()}€
-                        </td>
-                        <td>
-                            <button className="btn btn-sm btn-danger">Supprimer</button>
-                        </td>
-
-                    </tr>
-                ))}
-            </tbody>
+                    {paginatedCustomers.map(customer => (
+                        <tr key={customer.id}>
+                            <td>{customer.id}</td>
+                            <td>{customer.firstName} {customer.lastName}</td>
+                            <td>{customer.email}</td>
+                            <td>{customer.company}</td>
+                            <td className="text-center">
+                                <span className="badge bg-secondary">
+                                    {customer.invoices.length}
+                                </span>
+                            </td>
+                            <td className="text-center">
+                                {customer.totalAmount.toLocaleString()}€
+                            </td>
+                            <td className="text-center">
+                                {customer.unpaidAmount.toLocaleString()}€
+                            </td>
+                            <td>
+                                <Link className="btn btn-sm btn-warning m-1" to={`/customers/${customer.id}`}>Editer</Link>
+                                <button className="btn btn-sm btn-danger m-1">Supprimer</button>
+                            </td>
+                        </tr>
+                    ))}
+                    
+                </tbody>
             </table>
             {
                 itemsPerPage < filteredCustomers.length && 

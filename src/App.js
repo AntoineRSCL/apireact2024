@@ -8,33 +8,69 @@ import LoginPage from "./pages/LoginPage";
 import authAPI from "./services/authAPI";
 import { useState } from "react";
 import PrivateRoute from "./components/PrivateRoute";
+import AuthContext from "./contexts/AuthContext";
+import CustomerPage from "./pages/CustomerPage";
 
 
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(authAPI.isAuthenticated) ;
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    authAPI.isAuthenticated
+  );
+
+  //on donne les infos à la forme de notre contexte
+
+  const contextValue = {
+    isAuthenticated: isAuthenticated,
+    setIsAuthenticated: setIsAuthenticated,
+  };
   authAPI.setup();
-  return ( 
-    <Router>
-      <Navbar isAuthenticated={isAuthenticated} onLogout={setIsAuthenticated} />
-      <main className="container pt-5">
-        <Routes>
-          <Route path="/login" element={<LoginPage onLogin={setIsAuthenticated} />}  />
-          <Route path="/invoices" element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <InvoicesPage />
-            </PrivateRoute>
-          } />
-          <Route path="/customerpage" element={<CustomersPageWithPagination />} />
-          <Route path="/customers" element={
-            <PrivateRoute isAuthenticated={isAuthenticated}>
-              <CustomersPage />
-            </PrivateRoute>} />
-          <Route path="/" element={<HomePage />} />
-        </Routes>
-      </main>
-    </Router>
-   );
-}
+  return (
+    <>
+      <AuthContext.Provider value={contextValue}>
+        <Router>
+          <Navbar/>
+          <main className="container pt-5">
+            <Routes>
+              <Route
+                path="/login"
+                element={<LoginPage />}
+              />
+              <Route
+                path="/invoices"
+                element={
+                  <PrivateRoute>
+                    <InvoicesPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/customerpage"
+                element={<CustomersPageWithPagination />}
+              />
+              <Route
+                path="/customers/:id"
+                element={
+                  <PrivateRoute>
+                  <CustomerPage />
+                </PrivateRoute>
+                }
+              />
+              <Route
+                path="/customers"
+                element={
+                  <PrivateRoute>
+                    <CustomersPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/" element={<HomePage />} />
+            </Routes>
+          </main>
+        </Router>
+      </AuthContext.Provider>
+    </>
+  );
+};
  
 export default App;
