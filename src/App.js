@@ -10,6 +10,7 @@ import { useState } from "react";
 import PrivateRoute from "./components/PrivateRoute";
 import AuthContext from "./contexts/AuthContext";
 import CustomerPage from "./pages/CustomerPage";
+import InvoicePage from "./pages/InvoicePage";
 
 
 
@@ -35,6 +36,23 @@ const App = () => {
               <Route
                 path="/login"
                 element={<LoginPage />}
+              />
+
+              <Route
+                path="/invoices/:id"
+                element={
+                  <PrivateRoute>
+                    <InvoicePage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/invoices"
+                element={
+                  <PrivateRoute>
+                    <InvoicesPage />
+                  </PrivateRoute>
+                }
               />
               <Route
                 path="/invoices"

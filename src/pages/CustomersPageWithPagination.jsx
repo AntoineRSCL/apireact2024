@@ -26,11 +26,12 @@ const CustomersPageWithPagination = (props) => {
     },[currentPage])
 
     const handleDelete = (id) => {
-        //pessimisite
+        // pessimiste
         const originalCustomers = [...customers]
 
-        // optimiste
-        setCustomers(customers.filter(customer => customer.id !== id))
+
+        // optimisite
+        setCustomers(customers.filter(customer => customer.id !==id))
 
         Axios.delete(`http://apicourse.myepse.be/api/customers/${id}`)
             .then(response => console.log('ok'))
@@ -71,7 +72,7 @@ const CustomersPageWithPagination = (props) => {
                             <td>{customer.firstName} {customer.lastName}</td>
                             <td>{customer.email}</td>
                             <td>{customer.company}</td>
-                            <td class="text-center">
+                            <td className="text-center">
                                 <span className="badge bg-secondary">
                                     {customer.invoices.length}
                                 </span>

@@ -1,9 +1,9 @@
-import Axios from "axios";
+import Axios from 'axios'
 
 function findAll()
 {
-    return Axios.get("http://apicourse.myepse.be/api/invoices")
-                .then(response => response.data["hydra:member"])
+    return Axios.get("http://apicourse.myepse.be/api/invoices/")
+                .then(response => response.data['hydra:member'])
 }
 
 function deleteInvoice(id)

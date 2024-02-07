@@ -45,21 +45,22 @@ const LoginPage = (props) => {
                     <h1>Connexion</h1>
                     <form onSubmit={handleSubmit}>
                         <Field 
-                            label="Adresse e-mail"
+                            label="Adresse E-mail"
                             name="username"
                             value={credentials.username}
                             onChange={handleChange}
-                            placeholder='Adresse e-mail de Connexion'
+                            placeholder='Adresse E-mail de connexion'
                             error={error}
                         />
+
                         <Field 
                             label="Mot de passe"
                             name="password"
                             value={credentials.password}
-                            onChange={handleChange}
                             placeholder='Mot de passe'
+                            onChange={handleChange}
                             error={error}
-                            type='password'
+                            type="password"
                         />
                         <div className="form-group my-3">
                             <button className="btn btn-success">Connexion</button>
