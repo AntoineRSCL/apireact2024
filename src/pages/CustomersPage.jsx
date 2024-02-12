@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Pagination from "../components/Pagination";
 import customersAPI from "../services/customersAPI";
 import { Link } from "react-router-dom";
+import {toast} from 'react-toastify'
+import TableLoader from "../components/loaders/TableLoader";
 
 const CustomersPage = (props) => {
     const [customers, setCustomers] = useState([])
@@ -9,14 +11,19 @@ const CustomersPage = (props) => {
     // filtre
     const [search, setSearch] = useState("")
 
+    //loader
+    const [loading, setLoading] = useState(true)
+
     const fetchCustomers = async () => {
         try{
             const data = await customersAPI.findAll()
             setCustomers(data)
+            setLoading(false) // j'ai fini de charger les données
         }catch(error)
         {
             // notif à faire
-            console.error(error.response)
+            toast.error("Impossible de charger les clients")
+            //console.error(error.response)
         }
     }
 
@@ -59,10 +66,12 @@ const CustomersPage = (props) => {
 
         try{
             await customersAPI.delete(id)
+            toast.warning("Le client "+id+" a bien été supprimé")
         }catch(error)
         {
             setCustomers(originalCustomers)
             // notif 
+            toast.error("La suppression du client n'a pas pu fonctionner")
         }
     }
 
@@ -75,48 +84,53 @@ const CustomersPage = (props) => {
             <div className="form-group">
                 <input type="text" className="form-control" placeholder="Recherche..." onChange={handleSearch} value={search} />
             </div>
-            <table className="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Client</th>
-                        <th>Email</th>
-                        <th>Entreprise</th>
-                        <th>Factures</th>
-                        <th className="text-center">Montant total</th>
-                        <th className="text-center">Montant Restant</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {paginatedCustomers.map(customer => (
-                        <tr key={customer.id}>
-                            <td>{customer.id}</td>
-                            <td>{customer.firstName} {customer.lastName}</td>
-                            <td>{customer.email}</td>
-                            <td>{customer.company}</td>
-                            <td className="text-center">
-                                <span className="badge bg-secondary">
-                                    {customer.invoices.length}
-                                </span>
-                            </td>
-                            <td className="text-center">
-                                {customer.totalAmount.toLocaleString()}€
-                            </td>
-                            <td className="text-center">
-                                {customer.unpaidAmount.toLocaleString()}€
-                            </td>
-                            <td>
-                                <Link className="btn btn-sm btn-warning m-1" to={`/customers/${customer.id}`}>Editer</Link>
-                                <button 
-                                    className="btn btn-sm btn-danger m-1"
-                                    disabled={customer.invoices.length > 0} 
-                                    onClick={() => handleDelete(customer.id)}>Supprimer</button>
-                            </td>
+            { (!loading) ? (
+                <table className="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Entreprise</th>
+                            <th>Factures</th>
+                            <th className="text-center">Montant total</th>
+                            <th className="text-center">Montant Restant</th>
+                            <th></th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {paginatedCustomers.map(customer => (
+                            <tr key={customer.id}>
+                                <td>{customer.id}</td>
+                                <td>{customer.firstName} {customer.lastName}</td>
+                                <td>{customer.email}</td>
+                                <td>{customer.company}</td>
+                                <td className="text-center">
+                                    <span className="badge bg-secondary">
+                                        {customer.invoices.length}
+                                    </span>
+                                </td>
+                                <td className="text-center">
+                                    {customer.totalAmount.toLocaleString()}€
+                                </td>
+                                <td className="text-center">
+                                    {customer.unpaidAmount.toLocaleString()}€
+                                </td>
+                                <td>
+                                    <Link className="btn btn-sm btn-warning m-1" to={`/customers/${customer.id}`}>Editer</Link>
+                                    <button 
+                                        className="btn btn-sm btn-danger m-1"
+                                        disabled={customer.invoices.length > 0} 
+                                        onClick={() => handleDelete(customer.id)}>Supprimer</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ) : (
+                <TableLoader />
+            )}
+            
             {
                 itemsPerPage < filteredCustomers.length && 
                 <Pagination 

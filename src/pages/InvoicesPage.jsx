@@ -3,7 +3,9 @@ import Pagination from '../components/Pagination';
 import invoicesAPI from '../services/invoicesAPI';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-
+import { toast } from 'react-toastify'
+import TableLoader from '../components/loaders/TableLoader';
+ 
 // pour la traduction
 const STATUS_LABELS = {
     PAID: "Payée",
@@ -24,15 +26,20 @@ const InvoicesPage = (props) => {
     const [search, setSearch] = useState("")
     const itemsPerPage = 10 
 
+    // loader
+    const [loading, setLoading] = useState(true)
+
     // récup les invoices (factures)
     const fetchInvoice = async () => {
         try{
             const data = await invoicesAPI.findAll()
             setInvoices(data)
+            setLoading(false) // fini de charger
         }catch(error)
         {
             console.error(error.response)
             // notification à faire
+            toast.error("Erreur lors du chargement des factures")
         }
     }
 
@@ -64,10 +71,12 @@ const InvoicesPage = (props) => {
 
         try{
             await invoicesAPI.delete(id)
+            toast.warning("La facture "+id+" a bien été suprimée")
         }catch(error)
         {
             // notif à faire 
             setInvoices(originalInvoices)
+            toast.error("Une erreur est survenue")
         }
     }
 
@@ -78,43 +87,51 @@ const InvoicesPage = (props) => {
 
     return ( 
         <>
+        <div className="d-flex justify-content-between align-items-center">
             <h1>Liste des factures</h1>
+            <Link to="/invoices/new" className='btn btn-primary mb-3'>Créer une facture</Link>
+        </div>
             {/* filtre */}
             <div className="form-group">
                 <input type="text" className="form-control" placeholder='Rechercher...' value={search} onChange={handleSearch} />
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th className="text-center">Numéro</th>
-                            <th className="text-center">Client</th>
-                            <th className="text-center">Date d'envoi</th>
-                            <th className="text-center">Statut</th>
-                            <th className="text-center">Montant</th>
-                            <th className="text-center"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            paginatedInvoices.map(invoice => (
-                                <tr key={invoice.id}>
-                                    <td className="text-center">{invoice.id}</td>
-                                    <td className="text-center">{invoice.customer.firstName} {invoice.customer.lastName}</td>
-                                    <td className="text-center">{formatDate(invoice.sentAt)}</td>
-                                    <td className="text-center">
-                                        <span className={`badge bg-${STATUS_CLASSES[invoice.status]}`}>
-                                            {STATUS_LABELS[invoice.status]}
-                                        </span>
-                                    </td>
-                                    <td className="text-center">{invoice.amount.toLocaleString()}€</td>
-                                    <td className="text-center">
-                                        <Link to={`/invoices/${invoice.id}`} className="btn btn-sm btn-success mx-3">Editer</Link>
-                                        <button onClick={() => handleDelete(invoice.id)} className='btn btn-sm btn-danger'>Supprimer</button>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-                    </tbody>
-                </table>
+            </div>    
+             { (!loading) ? (
+                   <table className='table table-hover'>
+                        <thead>
+                            <tr>
+                                <th className="text-center">Numéro</th>
+                                <th className="text-center">Client</th>
+                                <th className="text-center">Date d'envoi</th>
+                                <th className="text-center">Statut</th>
+                                <th className="text-center">Montant</th>
+                                <th className="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                paginatedInvoices.map(invoice => (
+                                    <tr key={invoice.id}>
+                                        <td className="text-center">{invoice.id}</td>
+                                        <td className="text-center">{invoice.customer.firstName} {invoice.customer.lastName}</td>
+                                        <td className="text-center">{formatDate(invoice.sentAt)}</td>
+                                        <td className="text-center">
+                                            <span className={`badge bg-${STATUS_CLASSES[invoice.status]}`}>
+                                                {STATUS_LABELS[invoice.status]}
+                                            </span>
+                                        </td>
+                                        <td className="text-center">{invoice.amount.toLocaleString()}€</td>
+                                        <td className="text-center">
+                                            <Link to={`/invoices/${invoice.id}`} className="btn btn-sm btn-success mx-3">Editer</Link>
+                                            <button onClick={() => handleDelete(invoice.id)} className='btn btn-sm btn-danger'>Supprimer</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+             ) : (
+                <TableLoader />
+             )}
                 {/* Pagination */}
                 {
                     itemsPerPage < filteredInvoices.length && 
@@ -125,7 +142,6 @@ const InvoicesPage = (props) => {
                         onPageChanged={handlePageChange}
                     />
                 }
-            </div>
         </>
      );
 }
